@@ -1,0 +1,24 @@
+﻿<Window x:Name="SearchRecordsWindow1" x:Class="BlackJack.SearchRecordsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        Background="{DynamicResource MaterialDesignPaper}"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        xmlns:local="clr-namespace:BlackJack"
+        mc:Ignorable="d"
+        Title="SearchRecordsWindow" Height="450" Width="800" Loaded="SearchRecordsWindow1_Loaded">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="192*"/>
+            <ColumnDefinition Width="419*"/>
+            <ColumnDefinition Width="116*"/>
+            <ColumnDefinition Width="65*"/>
+        </Grid.ColumnDefinitions>
+        <Button x:Name="btnSearch" Content="Search" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="41,73,0,0" Click="btnSearch_Click"/>
+        <TextBox x:Name="TxtBxSearchName" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Margin="153,71,0,0" Grid.ColumnSpan="2"/>
+        <ListBox x:Name="lstBxRecords" HorizontalAlignment="Left" Height="241" VerticalAlignment="Top" Width="525" Margin="153,154,0,0" Grid.ColumnSpan="3"/>
+        <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="All Records:" VerticalAlignment="Top" Margin="153,108,0,0" FontSize="16" Grid.ColumnSpan="2"/>
+        <Button x:Name="btnHome" Content="Home" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="41,363,0,0" Click="btnHome_Click"/>
+    </Grid>
+</Window>
