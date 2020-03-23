@@ -34,6 +34,10 @@
         <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Current Player:" VerticalAlignment="Top" Margin="42,34,0,0" Grid.Column="1"/>
         <TextBlock x:Name="txtBlCurrentPlayer" HorizontalAlignment="Left" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Margin="128,34,0,0" Grid.Column="1"/>
         <Button x:Name="btnSearchForRecord" Content="Search For Record" HorizontalAlignment="Left" VerticalAlignment="Top" Width="271" Margin="208,377,0,0" Click="btnSearchForRecord_Click" Grid.ColumnSpan="2"/>
+        <Image x:Name="ImgUserCard" HorizontalAlignment="Left" Height="100" VerticalAlignment="Top" Width="100" Grid.Column="1" Margin="268,54,0,0" />
+        <Image x:Name="ImgDealerCard" HorizontalAlignment="Left" Height="100" VerticalAlignment="Top" Width="100" Grid.Column="1" Margin="268,229,0,0"/>
+        <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Your Card" VerticalAlignment="Top" Grid.Column="1" Margin="403,54,0,0"/>
+        <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Dealer Card" VerticalAlignment="Top" Grid.Column="1" Margin="406,227,0,0"/>
 
 
     </Grid>

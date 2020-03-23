@@ -17,9 +17,6 @@ namespace BlackJack
             //creates new list of cards
             cards = new List<Card>();
 
-            
-
-           
         }
 
         //stores the total score the player or dealer currently has

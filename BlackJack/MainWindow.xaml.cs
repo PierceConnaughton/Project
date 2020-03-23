@@ -58,7 +58,8 @@ namespace BlackJack
         bool playerInFile = false;
         bool ifHit = false;
 
-        //Image image;
+        Image userCard;
+        Image dealerCard;
 
         
 
@@ -84,7 +85,7 @@ namespace BlackJack
         private void btnStart_Click(object sender, RoutedEventArgs e)
         {
             //check if the game has been restarted to 0
-            if (gameRestarted == true)
+            if (gameRestarted == true && gameStarted == false)
             {
                 //check if anything is in text box
                 if (String.IsNullOrEmpty(txtBxEnterName.Text))
@@ -121,15 +122,19 @@ namespace BlackJack
                     //creates the dealers hand
                     Hand dealerHand = new Hand(deck);
 
+                    Card firstCard = deck.DrawCard(playerHand);
+                    Card secondCard = deck.DrawCard(playerHand);
 
-                    //for first cards weather it be 2 for player and 1 for dealer depending
-                    for (int i = 0; i < 2; i++)
-                    {
-                        
-                        playerSum = playerHand.AddValue(deck.DrawCard(playerHand)  , playerSum);
-                    }
 
-                    dealerSum = dealerHand.AddValue(deck.DrawCard(dealerHand), dealerSum);
+                    int firstCardNum = playerHand.AddValue(firstCard, playerSum);
+                    int secondCardNum = playerHand.AddValue(secondCard,playerSum);
+
+                    playerSum = firstCardNum + secondCardNum;
+
+                    
+                    
+                    Card dealerCard = deck.DrawCard(dealerHand);
+                    dealerSum = dealerHand.AddValue(dealerCard,dealerSum);
 
 
                     ////add players first two cards and turn them into a string too display
@@ -150,6 +155,8 @@ namespace BlackJack
                     dealerSumString = dealerSum.ToString();
 
                     txtBlDealerTotal.Text = dealerSumString;
+
+                    ImgUserCard.Source = secondCard.DisplayImage();
 
                     //check if player is a returning one
                     foreach (Player returningPlayer in players)
@@ -326,8 +333,11 @@ namespace BlackJack
                             //{
                             //    hit = 10;
                             //}
+                            playerHand = new Hand(deck);
 
                             playerSum = playerHand.AddValue(deck.DrawCard(playerHand), playerSum);
+
+                            
 
                             txtBlPlayerTotal.Text = playerSum.ToString();
 
@@ -528,7 +538,7 @@ namespace BlackJack
             allPlayers.Sort();
             allPlayers.Reverse();
 
-            
+            sr.Close();
 
         }
 
@@ -742,7 +752,7 @@ namespace BlackJack
 
                         sw.WriteLine("Player Name: {0,-15} Wins: {1,-15} Losses: {2,-15} Draws: {3,-15} Date Last time player played: {4}", newPlayer.PlayerName, newPlayer.Wins, newPlayer.Losses, newPlayer.Draws, newPlayer.DateOfLastGame);
 
-                        sw.Close();
+                       sw.Close();
                     }
 
                         
@@ -774,6 +784,9 @@ namespace BlackJack
             //    dealerCardNum = 10;
             //}
             //get dealer total and display it
+
+            dealerHand = new Hand(deck);
+
             dealerSum = dealerHand.AddValue(deck.DrawCard(dealerHand), dealerSum);
 
             dealerSumString = dealerSum.ToString();
@@ -865,12 +878,12 @@ namespace BlackJack
             }
         }
 
-        public void ReadFile()
-        {
-            string text = File.ReadAllText(@"H:\Year Two\Semester 4\Programming\Project\Project\PlayerRecords.txt");
-            text = text.Replace(string.Format("Player Name: {0,-15} Wins: {1,-15} Losses: {2,-15} Draws: {3}", "Pierce", 1, 0, 0), "new value");
-            File.WriteAllText("test.txt", text);
-        }
+        //public void ReadFile()
+        //{
+        //    string text = File.ReadAllText(@"H:\Year Two\Semester 4\Programming\Project\Project\PlayerRecords.txt");
+        //    text = text.Replace(string.Format("Player Name: {0,-15} Wins: {1,-15} Losses: {2,-15} Draws: {3}", "Pierce", 1, 0, 0), "new value");
+        //    File.WriteAllText("test.txt", text);
+        //}
 
         private void btnSearchForRecord_Click(object sender, RoutedEventArgs e)
         {

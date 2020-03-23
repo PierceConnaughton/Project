@@ -7,7 +7,7 @@
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         xmlns:local="clr-namespace:BlackJack"
         mc:Ignorable="d"
-        Title="SearchRecordsWindow" Height="450" Width="800" Loaded="SearchRecordsWindow1_Loaded">
+        Title="SearchRecordsWindow" Height="484" Width="1099" Loaded="SearchRecordsWindow1_Loaded">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="192*"/>
@@ -17,7 +17,7 @@
         </Grid.ColumnDefinitions>
         <Button x:Name="btnSearch" Content="Search" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="41,73,0,0" Click="btnSearch_Click"/>
         <TextBox x:Name="TxtBxSearchName" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Margin="153,71,0,0" Grid.ColumnSpan="2"/>
-        <ListBox x:Name="lstBxRecords" HorizontalAlignment="Left" Height="241" VerticalAlignment="Top" Width="525" Margin="153,154,0,0" Grid.ColumnSpan="3"/>
+        <ListBox x:Name="lstBxRecords" HorizontalAlignment="Left" Height="241" VerticalAlignment="Top" Width="849" Margin="153,154,0,0" Grid.ColumnSpan="3"/>
         <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="All Records:" VerticalAlignment="Top" Margin="153,108,0,0" FontSize="16" Grid.ColumnSpan="2"/>
         <Button x:Name="btnHome" Content="Home" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="41,363,0,0" Click="btnHome_Click"/>
     </Grid>
