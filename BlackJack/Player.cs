@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,6 +9,8 @@ namespace BlackJack
 {
     public class Player : IComparable
     {
+        #region Properties
+        public int PlayerID { get; set; }
         public string PlayerName { get; set; }
 
         public int Wins { get; set; }
@@ -17,6 +20,10 @@ namespace BlackJack
         public int Draws { get; set; }
 
         public string DateOfLastGame { get; set; }
+
+        public virtual List<Player> Players { get; set; }
+
+        #endregion Properties
 
         #region Constructors
         public Player()
@@ -34,12 +41,11 @@ namespace BlackJack
         }
         #endregion Constructors
 
-
         #region Methods
         public override string ToString()
         {
 
-            return String.Format("{0,-35}{1,-14}{2,-14}{3,-14}", PlayerName, Wins, Losses, Draws);
+            return String.Format("{0,-35}{1,-14}{2,-14}{3,-14}{4,-14}",PlayerID, PlayerName, Wins, Losses, Draws);
         }
 
         public int CompareTo(object obj)
@@ -49,7 +55,30 @@ namespace BlackJack
 
             return this.Wins.CompareTo(playerObj.Wins);
         }
+
+        public int WinMethod()
+        {
+            Wins++;
+            return Wins;
+        }
+        public int DrawMethod()
+        {
+            Draws++;
+            return Draws;
+        }
+        public int LoseMethod()
+        {
+            Losses++;
+            return Losses;
+        }
         #endregion Methods
 
+
+
+    }
+    public class PlayerData : DbContext
+    {
+        public PlayerData() : base("MyPlayerData") { }
+        public DbSet<Player> players { get; set; }
     }
 }

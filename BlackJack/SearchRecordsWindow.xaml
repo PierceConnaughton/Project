@@ -3,11 +3,12 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         Background="{DynamicResource MaterialDesignPaper}"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         xmlns:local="clr-namespace:BlackJack"
         mc:Ignorable="d"
-        Title="SearchRecordsWindow" Height="484" Width="1099" Loaded="SearchRecordsWindow1_Loaded">
+        Title="SearchRecordsWindow" Height="484" Width="784.268" Loaded="SearchRecordsWindow1_Loaded">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="192*"/>
@@ -15,9 +16,22 @@
             <ColumnDefinition Width="116*"/>
             <ColumnDefinition Width="65*"/>
         </Grid.ColumnDefinitions>
-        <Button x:Name="btnSearch" Content="Search" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="41,73,0,0" Click="btnSearch_Click"/>
+
+        <materialDesign:DialogHost x:Name="DialogHost">
+            <materialDesign:DialogHost.DialogContent>
+                <StackPanel  Margin="15">
+
+                    <TextBlock x:Name="txtBlNameFound" Text="A simple dialog" Margin="20"/>
+                    <Button Margin="10" Width="75" Name="Close_ME" Content="Close" Click="Close_ME_Click" />
+                </StackPanel>
+            </materialDesign:DialogHost.DialogContent>
+
+
+            <Button x:Name="btnSearch" Content="Search" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="41,73,0,0" Click="btnSearch_Click"/>
+        </materialDesign:DialogHost>
+
         <TextBox x:Name="TxtBxSearchName" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Margin="153,71,0,0" Grid.ColumnSpan="2"/>
-        <ListBox x:Name="lstBxRecords" HorizontalAlignment="Left" Height="241" VerticalAlignment="Top" Width="849" Margin="153,154,0,0" Grid.ColumnSpan="3"/>
+        <DataGrid x:Name="lstBxRecords" HorizontalAlignment="Left" Height="241" VerticalAlignment="Top" Width="536" Margin="153,154,0,0" Grid.ColumnSpan="2"/>
         <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="All Records:" VerticalAlignment="Top" Margin="153,108,0,0" FontSize="16" Grid.ColumnSpan="2"/>
         <Button x:Name="btnHome" Content="Home" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="41,363,0,0" Click="btnHome_Click"/>
     </Grid>
