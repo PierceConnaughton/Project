@@ -3,16 +3,27 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:local="clr-namespace:BlackJack"
         mc:Ignorable="d"
         Background="{DynamicResource MaterialDesignPaper}"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
-        Title="MainWindow" Height="450" Width="829.913" Loaded="MainWindow1_Loaded">
+        Title="MainWindow" Height="468.167" Width="1508.413" Loaded="MainWindow1_Loaded">
     <Grid Margin="0,0,-458,0">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="169*"/>
             <ColumnDefinition Width="623*"/>
         </Grid.ColumnDefinitions>
+        <materialDesign:DialogHost x:Name="DialogHost">
+            <materialDesign:DialogHost.DialogContent>
+                <StackPanel  Margin="15">
+                    <TextBlock x:Name="txtBlCardValue" Text="" Margin="10"/>
+                    <TextBlock x:Name="txtBlNameFound" Text="A simple dialog" Margin="10"/>
+                    <Button Margin="10" Width="75" Name="Close_ME" Content="Close" Click="Close_ME_Click" />
+                </StackPanel>
+            </materialDesign:DialogHost.DialogContent>
+        </materialDesign:DialogHost>
+        
         <Button x:Name="btnStart" Content="Start Game" HorizontalAlignment="Left" VerticalAlignment="Top" Width="119" Margin="36,83,0,0" Click="btnStart_Click"/>
         <Button x:Name="btnHitMe" Content="Hit Me" HorizontalAlignment="Left" VerticalAlignment="Top" Width="119" Margin="36,131,0,0" Click="btnHitMe_Click"/>
         <Button x:Name="btnDoubleDown" Content="Double Down" HorizontalAlignment="Left" VerticalAlignment="Top" Width="119" Margin="36,176,0,0" Click="btnDoubleDown_Click"/>
@@ -34,14 +45,29 @@
         <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Current Player:" VerticalAlignment="Top" Margin="42,34,0,0" Grid.Column="1"/>
         <TextBlock x:Name="txtBlCurrentPlayer" HorizontalAlignment="Left" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Margin="128,34,0,0" Grid.Column="1"/>
         <Button x:Name="btnSearchForRecord" Content="Search For Record" HorizontalAlignment="Left" VerticalAlignment="Top" Width="271" Margin="208,377,0,0" Click="btnSearchForRecord_Click" Grid.ColumnSpan="2"/>
-        <Image x:Name="ImgUserCard" HorizontalAlignment="Left" Height="100" VerticalAlignment="Top" Width="100" Grid.Column="1" Margin="268,54,0,0" />
-        <Image x:Name="ImgDealerCard" HorizontalAlignment="Left" Height="100" VerticalAlignment="Top" Width="100" Grid.Column="1" Margin="268,229,0,0"/>
-        <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Your Card" VerticalAlignment="Top" Grid.Column="1" Margin="403,54,0,0"/>
-        <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Dealer Card" VerticalAlignment="Top" Grid.Column="1" Margin="406,227,0,0"/>
+        <Image x:Name="ImgUserFirstCard" HorizontalAlignment="Left" Height="100" VerticalAlignment="Top" Width="100" Grid.Column="1" Margin="263,54,0,0" RenderTransformOrigin="0.33,0.45" />
+        <Image x:Name="ImgDealerFirstCard" HorizontalAlignment="Left" Height="100" VerticalAlignment="Top" Width="100" Grid.Column="1" Margin="268,229,0,0"/>
+        <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Your Card" VerticalAlignment="Top" Grid.Column="1" Margin="952,54,0,0"/>
+        <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Dealer Card" VerticalAlignment="Top" Grid.Column="1" Margin="952,214,0,0"/>
+        <Image x:Name="ImgUserSecondCard" HorizontalAlignment="Left" Height="100" VerticalAlignment="Top" Width="100" Grid.Column="1" Margin="386,54,0,0" />
+        <Image x:Name="ImgUserThirdCard" HorizontalAlignment="Left" Height="100" VerticalAlignment="Top" Width="100" Grid.Column="1" Margin="504,54,0,0" />
+        <Image x:Name="ImgUserFourthCard" HorizontalAlignment="Left" Height="100" VerticalAlignment="Top" Width="100" Grid.Column="1" Margin="630,54,0,0" />
+        <Image x:Name="ImgUserFifthCard" HorizontalAlignment="Left" Height="100" VerticalAlignment="Top" Width="100" Grid.Column="1" Margin="748,54,0,0" />
+        <Image x:Name="ImgDealerSecondCard" HorizontalAlignment="Left" Height="100" VerticalAlignment="Top" Width="100" Grid.Column="1" Margin="386,227,0,0" />
+        <Image x:Name="ImgUserFirstCard_Copy5" HorizontalAlignment="Left" Height="100" VerticalAlignment="Top" Width="100" Grid.Column="1" Margin="504,229,0,0" />
+        <Image x:Name="ImgDealerThirdCard" HorizontalAlignment="Left" Height="100" VerticalAlignment="Top" Width="100" Grid.Column="1" Margin="504,229,0,0" />
+        <Image x:Name="ImgDealerFourthCard" HorizontalAlignment="Left" Height="100" VerticalAlignment="Top" Width="100" Grid.Column="1" Margin="630,229,0,0" />
+        <Image x:Name="ImgDealerFifthCard" HorizontalAlignment="Left" Height="100" VerticalAlignment="Top" Width="100" Grid.Column="1" Margin="748,229,0,0" />
+
+       
+
+
+
 
 
     </Grid>
-
+    
+    
 
 
 </Window>

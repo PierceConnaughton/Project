@@ -12,7 +12,13 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
+using System.Data.SqlClient;
+using System.Data;
+using Newtonsoft.Json;
 
 namespace BlackJack
 {
@@ -21,6 +27,7 @@ namespace BlackJack
     /// </summary>
     public partial class MainWindow : Window
     {
+        PlayerData db = new PlayerData();
 
         //creates the deck
         Deck deck;
@@ -40,8 +47,7 @@ namespace BlackJack
         string dealerSumString;
         string playerSumString;
 
-        string[] suits = new string[4] { "spades", "clubs", "hearts", "diamonds" };
-        string[] faces = new string[13] { "2", "3", "4", "5", "6", "7", "8", "9", "10", "jack", "queen", "king", "ace" };
+        
         //List<string> deck = new List<string>();
 
         //list of all the current players
@@ -55,15 +61,14 @@ namespace BlackJack
         bool playerReturned = false;
         bool gameStarted = false;
         bool playerFound = false;
-        bool playerInFile = false;
+        
         bool ifHit = false;
 
-        Image userCard;
-        Image dealerCard;
+        bool win = false;
+        bool draw = false;
+        bool lose = false;
 
         
-
-
 
         public MainWindow()
         {
@@ -75,22 +80,31 @@ namespace BlackJack
         {
             if (gameStarted == false)
             {
+                
                 Save();
                 MainWindow1.Close();
             }
 
         }
 
+        private void Close_ME_Click(object sender, RoutedEventArgs e)
+        {
+            DialogHost.IsOpen = false;
+        }
         //if start button clicked
         private void btnStart_Click(object sender, RoutedEventArgs e)
         {
+            //clears card value text
+            txtBlCardValue.Text = "";
             //check if the game has been restarted to 0
             if (gameRestarted == true && gameStarted == false)
             {
-                //check if anything is in text box
+                //check if nothing is in text box
                 if (String.IsNullOrEmpty(txtBxEnterName.Text))
                 {
-                    MessageBox.Show("Enter Name First");
+                    
+                    txtBlNameFound.Text = "Enter Name First";
+                    DialogHost.IsOpen = true;
                 }
                 else
                 {
@@ -99,64 +113,64 @@ namespace BlackJack
 
                     playerFound = false;
 
-                    //Card card1 = new Card();
-                    //Card card2 = new Card();
-
-                    //Card dealerCard = new Card();
-
-                    //int cardNumber1 = (int)card1.cardNumberVar;
-                    //if (cardNumber1 > 11)
-                    //{
-                    //    cardNumber1 = 11;
-                    //}
-
-                    //int cardNumber2 = (int)card2.cardNumberVar;
-                    //if (cardNumber2 > 10)
-                    //{
-                    //    cardNumber2 = 10;
-                    //}
                     deck = new Deck();
 
+                    #region PlayerHand
                     //creates the players hand
                     Hand playerHand = new Hand(deck);
-                    //creates the dealers hand
-                    Hand dealerHand = new Hand(deck);
-
+                    
+                    //draws 2 cards for player hand
                     Card firstCard = deck.DrawCard(playerHand);
                     Card secondCard = deck.DrawCard(playerHand);
 
-
+                    //gets the sums of these cards
                     int firstCardNum = playerHand.AddValue(firstCard, playerSum);
                     int secondCardNum = playerHand.AddValue(secondCard,playerSum);
 
+                    //equal them too overall player sum
                     playerSum = firstCardNum + secondCardNum;
 
-                    
-                    
-                    Card dealerCard = deck.DrawCard(dealerHand);
-                    dealerSum = dealerHand.AddValue(dealerCard,dealerSum);
-
-
-                    ////add players first two cards and turn them into a string too display
-                    //playerNum = cardNumber1 + cardNumber2;
-
-
+                    //display sum
                     playerSumString = playerSum.ToString();
 
                     txtBlPlayerTotal.Text = playerSumString;
 
-                    ////show dealers first card as a string
-                    //dealerNum = (int)dealerCard.cardNumberVar;
-                    //if (dealerNum > 11)
-                    //{
-                    //    dealerNum = 11;
-                    //}
+                    //display the image of the first 2 cards
+                    BitmapImage userFirstbitmapImage = Convert(firstCard.ReturnImage());
 
+                    ImgUserFirstCard.Source = userFirstbitmapImage;
+
+                    BitmapImage userSecondbitmapImage = Convert(secondCard.ReturnImage());
+
+                    ImgUserSecondCard.Source = userSecondbitmapImage;
+
+                    #endregion PlayerHand
+
+
+                    #region DealerHand
+                    //creates the dealers hand
+                    Hand dealerHand = new Hand(deck);
+
+                    //draws dealers first card
+                    Card dealerCard = deck.DrawCard(dealerHand);
+
+                    //gets card value and equal it too dealer sum
+                    dealerSum = dealerHand.AddValue(dealerCard,dealerSum);
+
+                    
+                    //display dealer sum
                     dealerSumString = dealerSum.ToString();
 
                     txtBlDealerTotal.Text = dealerSumString;
 
-                    ImgUserCard.Source = secondCard.DisplayImage();
+                    //display dealer card image
+                    BitmapImage dealerbitmapImage = Convert(dealerCard.ReturnImage());
+
+                    ImgDealerFirstCard.Source = dealerbitmapImage;
+
+                    #endregion DealerHand
+
+
 
                     //check if player is a returning one
                     foreach (Player returningPlayer in players)
@@ -165,7 +179,10 @@ namespace BlackJack
                         if (returningPlayer.PlayerName == txtBxEnterName.Text)
                         {
                             playerReturned = true;
-                            MessageBox.Show("Returning Player");
+
+                            txtBlNameFound.Text = "Returning Player";
+                            DialogHost.IsOpen = true;
+                            
                         }
                     }
 
@@ -210,7 +227,7 @@ namespace BlackJack
                     }
                     else
                     {
-
+                        //clears all wins losses and drwas for new player
                         txtBlWin.Text = "0";
                         txtBlLosses.Text = "0";
                         txtBlDraws.Text = "0";
@@ -256,16 +273,36 @@ namespace BlackJack
             //if game has not been restarted display message
             else
             {
-                MessageBox.Show("Restart Game and press start");
+                txtBlNameFound.Text = "Restart Game and press start";
+                DialogHost.IsOpen = true;
+                
             }
 
-
-
-
         }
+
+        //converts image too bitmap image toio display card on the screen
+        public BitmapImage Convert(System.Drawing.Image img)
+        {
+            using (var memory = new MemoryStream())
+            {
+                img.Save(memory, ImageFormat.Png);
+                memory.Position = 0;
+
+                var bitmapImage = new BitmapImage();
+                bitmapImage.BeginInit();
+                bitmapImage.StreamSource = memory;
+                bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+                bitmapImage.EndInit();
+
+                return bitmapImage;
+            }
+        }
+
+
         //on window load
         private void MainWindow1_Loaded(object sender, RoutedEventArgs e)
         {
+            
             //when the main window is loaded set all the values too default
             txtBlCurrentPlayer.Text = "Unknown";
             txtBlDealerTotal.Text = "0";
@@ -288,7 +325,7 @@ namespace BlackJack
             //    MessageBox.Show(x);
             //}
 
-            RefreshRecords();
+            //RefreshRecords();
 
         }
 
@@ -303,7 +340,9 @@ namespace BlackJack
                 //name has to be entred to use this button
                 if (String.IsNullOrEmpty(txtBxEnterName.Text))
                 {
-                    MessageBox.Show("Enter Name First");
+
+                    txtBlNameFound.Text = "Enter Name First";
+                    DialogHost.IsOpen = true;
                 }
                 else
                 {
@@ -325,21 +364,41 @@ namespace BlackJack
 
                             ifHit = true;
                             //get random card between 1 and 10 and add it too your total
-                            Card HitCard = new Card();
-
-
-                            //int hit = (int)HitCard.cardNumberVar;
-                            //if (hit > 10)
-                            //{
-                            //    hit = 10;
-                            //}
                             playerHand = new Hand(deck);
 
-                            playerSum = playerHand.AddValue(deck.DrawCard(playerHand), playerSum);
-
+                            Card HitCard = deck.DrawCard(playerHand);
                             
+                            int HitCardNum = playerHand.AddValue(HitCard, playerSum);
 
-                            txtBlPlayerTotal.Text = playerSum.ToString();
+
+                            playerSum = HitCardNum;
+
+                            playerSumString = playerSum.ToString();
+
+                            txtBlPlayerTotal.Text = playerSumString;
+
+                            BitmapImage userHitbitmapImage = Convert(HitCard.ReturnImage());
+
+                            if (ImgUserThirdCard.Source ==  null)
+                            {
+                                ImgUserThirdCard.Source = userHitbitmapImage;
+                            }
+
+                            else if (ImgUserFourthCard.Source == null)
+                            {
+                                ImgUserFourthCard.Source = userHitbitmapImage;
+                            }
+
+                            else if (ImgUserFifthCard.Source == null)
+                            {
+                                ImgUserFifthCard.Source = userHitbitmapImage;
+                            }
+
+                            else
+                            {
+                                ImgUserFirstCard.Source = userHitbitmapImage;
+                            }
+                                 
 
                             //if player gets more then 21 they lose or if player gets exactly 21 they win
                             if (playerSum > 21)
@@ -358,8 +417,9 @@ namespace BlackJack
                     //if player cant be found as the same player in the txtbx get a warning
                     if (playerFound == false)
                     {
-                        MessageBox.Show("Player changed, please press start");
-
+                        
+                        txtBlNameFound.Text = "Player changed, please press start";
+                        DialogHost.IsOpen = true;
                     }
 
                 }
@@ -367,27 +427,24 @@ namespace BlackJack
             else
             {
                 //warning too restart the game
-
-                MessageBox.Show("Press Restart and then press start game");
+                txtBlNameFound.Text = "Press Restart and then press start game";
+                DialogHost.IsOpen = true;
+                
 
             }
-
-
-
-
-
-
 
         }
 
         private void btnFold_Click(object sender, RoutedEventArgs e)
         {
+            //check if game is in progress
             if (gameRestarted == true && gameStarted == true)
             {
 
                 if (String.IsNullOrEmpty(txtBxEnterName.Text))
                 {
-                    MessageBox.Show("Enter Name First");
+                    txtBlNameFound.Text = "Enter Name First";
+                    DialogHost.IsOpen = true;
                 }
 
 
@@ -410,39 +467,55 @@ namespace BlackJack
 
                         }
                     }
+                    //if player changed his name halfway through game
                     if (playerFound == false)
                     {
-                        MessageBox.Show("Player changed, please press start");
+                        
+                        txtBlNameFound.Text = "Player changed, please press start";
+                        DialogHost.IsOpen = true;
                     }
                 }
             }
 
             else
             {
-                MessageBox.Show("Restart Game and press Start");
+                
+                txtBlNameFound.Text = "Restart Game and press Start";
+                DialogHost.IsOpen = true;
             }
         }
 
         //Method if you lost
         public void Loss()
         {
+            //get name in textbox
             string x = txtBxEnterName.Text;
 
+            //go through all players
             foreach (Player newPlayer in players)
             {
 
-
+                //check if 1 of the players in the players list is same as the player in txtbox
                 if (newPlayer.PlayerName == x)
                 {
+                    //change date of last game too current
                     newPlayer.DateOfLastGame = DateTime.Now.ToString("MM/dd/yyyy H:mm");
                     gameInProgress = true;
+                    //add loss too player
                     newPlayer.Losses++;
-                    MessageBox.Show("You Lose. You lost " + newPlayer.Losses + " games");
+                    //display result on screen
+                    txtBlCardValue.Text = string.Format("Your Sum: " + playerSumString + " Dealer sum: " + dealerSumString);
+
+                    //display player overall losses
+                    txtBlNameFound.Text = string.Format(" You Lose. You lost " + newPlayer.Losses + " game(s)");
+                    DialogHost.IsOpen = true;
+                   
                     //players.Sort();
-                    
+                    lose = true;
                     Restart();
                     RefreshRecords();
                     txtBlLosses.Text = newPlayer.Losses.ToString();
+                    lose = false;
                     return;
                 }
 
@@ -454,6 +527,7 @@ namespace BlackJack
         //Method if you won
         public void Win()
         {
+            //same as loss method with minor changes
             string x = txtBxEnterName.Text;
 
             foreach (Player newPlayer in players)
@@ -465,12 +539,17 @@ namespace BlackJack
                     newPlayer.DateOfLastGame = DateTime.Now.ToString("MM/dd/yyyy H:mm");
                     gameInProgress = true;
                     newPlayer.Wins++;
-                    MessageBox.Show("You won. You won " + newPlayer.Wins + " games");
-                    //players.Sort();
+                    txtBlCardValue.Text = string.Format("Your Sum: " + playerSumString + " Dealer sum: " + dealerSumString);
+
+                    txtBlNameFound.Text = string.Format(" You won. You won " + newPlayer.Wins + " game(s)");
+                    DialogHost.IsOpen = true;
                     
+                    //players.Sort();
+                    win = true;
                     Restart();
                     RefreshRecords();
                     txtBlWin.Text = newPlayer.Wins.ToString();
+                    win = false;
                     return;
                 }
 
@@ -481,6 +560,7 @@ namespace BlackJack
         //method if you drew
         public void Draw()
         {
+            //same as loss method with minor changes
             string x = txtBxEnterName.Text;
 
             foreach (Player newPlayer in players)
@@ -491,13 +571,17 @@ namespace BlackJack
                     newPlayer.DateOfLastGame = DateTime.Now.ToString("MM/dd/yyyy H:mm");
                     gameInProgress = true;
                     newPlayer.Draws++;
-                    MessageBox.Show("You Draw. You drew " + newPlayer.Draws + " games");
+                    txtBlCardValue.Text = string.Format("Your Sum: " + playerSumString + " Dealer sum: " + dealerSumString);
+                    txtBlNameFound.Text = string.Format(" You Draw. You drew " + newPlayer.Draws + " game(s)");
+                    DialogHost.IsOpen = true; 
                     //players.Sort();
-                
+                    draw = true;
                     Restart();
                     RefreshRecords();
                     txtBlDraws.Text = newPlayer.Draws.ToString();
+                    draw = false;
                     return;
+
 
                 }
 
@@ -508,9 +592,11 @@ namespace BlackJack
         //refreshes the records after a game
         public void RefreshRecords()
         {
+            //go too save method
             Save();
 
-            FileStream fs = new FileStream(@"H:\Year Two\Semester 4\Programming\Project\Project\PlayerRecords.txt", FileMode.Open, FileAccess.Read);
+            //find file and put in list of players into the txt file
+            FileStream fs = new FileStream(@"D:\College\Programming\BlackJack-master\Project\PlayerRecords.txt", FileMode.Open, FileAccess.Read);
 
             StreamReader sr = new StreamReader(fs);
 
@@ -566,6 +652,20 @@ namespace BlackJack
 
             txtBlDealerTotal.Text = "0";
             txtBlPlayerTotal.Text = "0";
+
+            ImgUserFirstCard.Source = null;
+            ImgUserSecondCard.Source = null;
+            ImgUserThirdCard.Source = null;
+            ImgUserFourthCard.Source = null;
+            ImgUserFifthCard.Source = null;
+            
+            ImgDealerFirstCard.Source = null;
+            ImgDealerSecondCard.Source = null;
+            ImgDealerThirdCard.Source = null;
+            ImgDealerFourthCard.Source = null;
+            ImgDealerFifthCard.Source = null;
+
+            
         }
 
         //When double down is clicked
@@ -575,11 +675,16 @@ namespace BlackJack
             {
                 if (String.IsNullOrEmpty(txtBxEnterName.Text))
                 {
-                    MessageBox.Show("Enter Name First");
+                    
+                    txtBlNameFound.Text = string.Format("Enter Name First");
+                    DialogHost.IsOpen = true;
                 }
+                //if hit button has been pressed cant double down
                 else if (ifHit == true)
                 {
-                    MessageBox.Show("Cannot double down after hit was pressed");
+                    
+                    txtBlNameFound.Text = string.Format("Cannot double down after hit was pressed");
+                    DialogHost.IsOpen = true;
                 }
                 else
                 {
@@ -593,19 +698,35 @@ namespace BlackJack
                         if (newPlayer.PlayerName == x)
                         {
                             playerFound = true;
-                            //Card doubleDown = new Card();
 
-                            //int doubleDownNum = (int)doubleDown.cardNumberVar;
-                            //if (doubleDownNum > 10)
-                            //{
-                            //    doubleDownNum = 10;
-                            //}
+                            //get 2 new cards add them too the total and display them
+                            playerHand = new Hand(deck);
 
-                            playerSum = playerHand.AddValue(deck.DrawCard(playerHand), playerSum);
-                            playerSum = playerHand.AddValue(deck.DrawCard(playerHand), playerSum);
+                            Card firstCardDoubleDown = deck.DrawCard(playerHand);
+                            Card secondCardDoubleDown = deck.DrawCard(playerHand);
 
-                            txtBlPlayerTotal.Text = playerSum.ToString();
+                            int firstCardDoubleDownNum = playerHand.AddValue(firstCardDoubleDown, playerSum);
+                            int secondCardDoubleDownNum = playerHand.AddValue(secondCardDoubleDown, playerSum);
 
+                            int total = (firstCardDoubleDownNum + secondCardDoubleDownNum) - playerSum;
+                            playerSum = total;
+
+                            
+
+                            playerSumString = playerSum.ToString();
+
+                            txtBlPlayerTotal.Text = playerSumString;
+
+                            BitmapImage userFirstbitmapImage = Convert(firstCardDoubleDown.ReturnImage());
+                            BitmapImage userSecondbitmapImage = Convert(secondCardDoubleDown.ReturnImage());
+
+
+                            ImgUserThirdCard.Source = userFirstbitmapImage;
+                            ImgUserFourthCard.Source = userSecondbitmapImage;
+
+                           
+                           
+                            //if player sum over 21 they lose same as 21 they win otherwise the dealer can now play
                             if (playerSum > 21)
                             {
                                 Loss();
@@ -619,21 +740,25 @@ namespace BlackJack
                             else
                             {
                                 Dealer();
+                               
                             }
                         }
 
                     }
                     if (playerFound == false)
                     {
-                        MessageBox.Show("Player changed, please press start");
+                        txtBlNameFound.Text = string.Format("Player changed, please press start");
+                        DialogHost.IsOpen = true;
+                       
                     }
                 }
 
             }
             else
             {
-
-                MessageBox.Show("Restart Game and press Start");
+                txtBlNameFound.Text = string.Format("Restart Game and press Start");
+                DialogHost.IsOpen = true;
+                
             }
         }
 
@@ -641,130 +766,185 @@ namespace BlackJack
         {
             if (gameStarted == false)
             {
+                //query too get all players where player name and txtbx name are same
+                var query = from p in db.players
+                            where p.PlayerName == txtBxEnterName.Text 
+                            select new
+                            {
+                                PlayerName = p.PlayerName,
+                                Wins = p.Wins,
+                                Losses = p.Losses,
+                                Draws = p.Draws,
+                                LastTimePlayed = p.DateOfLastGame
+                            };
+
+                var x = query.AsQueryable().FirstOrDefault(name => name.PlayerName == txtBxEnterName.Text);
+               //if name is found in database
+                if (x != null)
+                {
+                   //if player won or if they lose or if they draw use that method
+                    if (win == true)
+                    {
+                        int winsInt = x.Wins;
+                        winsInt++;
+                        UpdatePlayer(winsInt);
+                    }
+                    else if (lose == true)
+                    {
+                        int LossesInt = x.Losses;
+                        LossesInt++;
+                        UpdatePlayer(LossesInt);
+                    }
+                    else if (draw == true)
+                    {
+                        int drawsInt = x.Draws;
+                        drawsInt++;
+                        UpdatePlayer(drawsInt);
+                    }
+                    else
+                    {
+
+                    }
+                    
+                }
+                else
+                {
+                    //if player not found in database add new player
+                    InsertPlayer();
+                }
+
+                SaveFile();
+
+
+                #region Comments
+
+
                 //message too show records being saved
-               
+
 
                 //foreach player in the list save their record too a list
-                foreach (Player newPlayer in players)
-                {
-                    //playerInFile = false;
+                //foreach (Player newPlayer in players)
+                //{
+                //playerInFile = false;
 
 
 
-                    //foreach (Player player in players)
-                    //{
-                    //    if (newPlayer.PlayerName == player.PlayerName)
-                    //    {
-                    //        FileStream fs = new FileStream(@"H:\Year Two\Semester 4\Programming\Project\PlayerRecords.txt", FileMode.Create, FileAccess.Write);
+                //foreach (Player player in players)
+                //{
+                //    if (newPlayer.PlayerName == player.PlayerName)
+                //    {
+                //        FileStream fs = new FileStream(@"H:\Year Two\Semester 4\Programming\Project\PlayerRecords.txt", FileMode.Create, FileAccess.Write);
 
 
-                    //        StreamWriter sw = new StreamWriter(fs);
+                //        StreamWriter sw = new StreamWriter(fs);
 
-                    //        sw.WriteLine("Player Name: {0,-15} Wins: {1,-15} Losses: {2,-15} Draws: {3}", newPlayer.PlayerName, newPlayer.Wins, newPlayer.Losses, newPlayer.Draws);
-                    //        playerInFile = true;
-                    //        sw.Close();
+                //        sw.WriteLine("Player Name: {0,-15} Wins: {1,-15} Losses: {2,-15} Draws: {3}", newPlayer.PlayerName, newPlayer.Wins, newPlayer.Losses, newPlayer.Draws);
+                //        playerInFile = true;
+                //        sw.Close();
 
-                    //        return;
+                //        return;
 
-                    //    }
+                //    }
 
-                    //}
+                //}
 
-                    //if (playerInFile == false)
-                    //{
-
-
-
-
-                    
-
-                    if (playerReturned == true)
-                    {
-                        FileStream fs1 = new FileStream(@"H:\Year Two\Semester 4\Programming\Project\Project\PlayerRecords.txt", FileMode.Open, FileAccess.Read);
-
-                        StreamReader sr = new StreamReader(fs1);
-
-                        string x = txtBxEnterName.Text;
-
-                        foreach (Player player in players)
-                        {
-                            if (player.PlayerName == x)
-                            {
-                                MessageBox.Show("Inside If");
-                                string name = player.PlayerName;
-                                string[] lines = new string[100];
-                                bool found = false;
-
-                                string result = "Unknown";
-
-                                string searchName = string.Format(" {0,-15} Wins", name);
-
-                                string lineIn = sr.ReadLine();
-                                string[] fieldArray1 = new string[5];
-
-                                if (name == "")
-                                {
-                                    MessageBox.Show("Please enter name first");
-                                    return;
-                                }
-
-                                for (int i = 0; i < 100; i++)
-                                {
-                                    lines[i] = lineIn;
-                                    lineIn = sr.ReadLine();
-                                }
-
-                                for (int i = 0; i < lines.Length; i++)
-                                {
-                                    fieldArray1 = lines[i].Split(':');
-                                    string playerName = string.Format(fieldArray1[1]);
-                                    if (fieldArray1[1] == searchName)
-                                    {
-                                        result = string.Format(lines[i].ToString());
-
-                                        MessageBox.Show(result);
-                                        found = true;
-                                        break;
-                                    }
-
-
-                                }
-                                if (found == false)
-                                {
-                                    result = "Player not found";
-                                    MessageBox.Show(result);
-
-
-                                }
-                                found = false;
-
-
-                                sr.Close();
-                            }
-
-                        }
-                    }
-
-                    else if(playerReturned != true)
-                    {
-                        FileStream fs = new FileStream(@"H:\Year Two\Semester 4\Programming\Project\Project\PlayerRecords.txt", FileMode.Append, FileAccess.Write);
-                        StreamWriter sw = new StreamWriter(fs);
-
-                        sw.WriteLine("Player Name: {0,-15} Wins: {1,-15} Losses: {2,-15} Draws: {3,-15} Date Last time player played: {4}", newPlayer.PlayerName, newPlayer.Wins, newPlayer.Losses, newPlayer.Draws, newPlayer.DateOfLastGame);
-
-                       sw.Close();
-                    }
-
-                        
-
-                    
-                    //}
+                //if (playerInFile == false)
+                //{
 
 
 
-                }
+
+
+
+                //if (playerReturned == true)
+                //{
+                //    FileStream fs1 = new FileStream(@"D:\College\Programming\BlackJack-master\Project\PlayerRecords.txt", FileMode.Open, FileAccess.Read);
+
+                //    StreamReader sr = new StreamReader(fs1);
+
+                //    string x = txtBxEnterName.Text;
+
+                //    foreach (Player player in players)
+                //    {
+                //        if (player.PlayerName == x)
+                //        {
+                //            MessageBox.Show("Inside If");
+                //            string name = player.PlayerName;
+                //            string[] lines = new string[100];
+                //            bool found = false;
+
+                //            string result = "Unknown";
+
+                //            string searchName = string.Format(" {0,-15} Wins", name);
+
+                //            string lineIn = sr.ReadLine();
+                //            string[] fieldArray1 = new string[5];
+
+                //            if (name == "")
+                //            {
+                //                MessageBox.Show("Please enter name first");
+                //                return;
+                //            }
+
+                //            for (int i = 0; i < 100; i++)
+                //            {
+                //                lines[i] = lineIn;
+                //                lineIn = sr.ReadLine();
+                //            }
+
+                //            for (int i = 0; i < lines.Length; i++)
+                //            {
+                //                fieldArray1 = lines[i].Split(':');
+                //                string playerName = string.Format(fieldArray1[1]);
+                //                if (fieldArray1[1] == searchName)
+                //                {
+                //                    result = string.Format(lines[i].ToString());
+
+                //                    MessageBox.Show(result);
+                //                    found = true;
+                //                    break;
+                //                }
+
+
+                //            }
+                //            if (found == false)
+                //            {
+                //                result = "Player not found";
+                //                MessageBox.Show(result);
+
+
+                //            }
+                //            found = false;
+
+
+                //            sr.Close();
+                //        }
+
+                //    }
+                //}
+
+                //else if(playerReturned != true)
+                //{
+                //    FileStream fs = new FileStream(@"D:\College\Programming\BlackJack-master\Project\PlayerRecords.txt", FileMode.Append, FileAccess.Write);
+                //    StreamWriter sw = new StreamWriter(fs);
+
+                //    sw.WriteLine("Player Name: {0,-15} Wins: {1,-15} Losses: {2,-15} Draws: {3,-15} Date Last time player played: {4}", newPlayer.PlayerName, newPlayer.Wins, newPlayer.Losses, newPlayer.Draws, newPlayer.DateOfLastGame);
+
+                //   sw.Close();
+                //}
+
+
+
+
+                //}
+
+
+
+                //}
                 //ReadFile();
-                
+
+                #endregion Comments
+
             }
             else
             {
@@ -775,22 +955,28 @@ namespace BlackJack
         //Method for when it's the dealers turn
         public void Dealer()
         {
-
-            //Card dealerCard = new Card();
-            ////get dealers second card
-            //int dealerCardNum = (int)dealerCard.cardNumberVar;
-            //if (dealerCardNum > 10)
-            //{
-            //    dealerCardNum = 10;
-            //}
-            //get dealer total and display it
-
+            //gets dealers second card displays total and card image
+            #region DealerCard
             dealerHand = new Hand(deck);
 
-            dealerSum = dealerHand.AddValue(deck.DrawCard(dealerHand), dealerSum);
+            Card firstCard = deck.DrawCard(dealerHand);
+            
+            int firstCardNum = dealerHand.AddValue(firstCard, dealerSum);
+
+
+
+            dealerSum = firstCardNum;
 
             dealerSumString = dealerSum.ToString();
+
             txtBlDealerTotal.Text = dealerSumString;
+
+            BitmapImage userFirstbitmapImage = Convert(firstCard.ReturnImage());
+            
+
+           ImgDealerSecondCard.Source = userFirstbitmapImage;
+
+            #endregion DealerCard
 
             //if dealer has exactly 21 you lose
             if (dealerSum == 21)
@@ -815,18 +1001,42 @@ namespace BlackJack
                     //if dealer number below 21 and also below the player's number
                     else if (dealerSum <= 21 && dealerSum < playerSum)
                     {
-                        Card newCard = new Card();
-                        //give dealer a new card and add it too total
-                        int newCardNum = (int)newCard.cardNumberVar;
-                        if (newCardNum > 10)
-                        {
-                            newCardNum = 10;
-                        }
+                        Card newCard = deck.DrawCard(dealerHand);
 
-                        dealerSum = dealerHand.AddValue(deck.DrawCard(dealerHand), dealerSum);
+                        int newCardNum = dealerHand.AddValue(newCard, dealerSum);
+                        
+
+                        dealerSum = newCardNum;
 
                         dealerSumString = dealerSum.ToString();
+
                         txtBlDealerTotal.Text = dealerSumString;
+
+                        BitmapImage dealerNewCardbitmapImage = Convert(newCard.ReturnImage());
+
+                        //depending on if the place for the new card image is null display it this place if it is not null look at the next spot
+                        if (ImgDealerThirdCard.Source == null)
+                        {
+                            ImgDealerThirdCard.Source = dealerNewCardbitmapImage;
+                        }
+
+                        else if (ImgDealerFourthCard.Source == null)
+                        {
+                            ImgDealerFourthCard.Source = dealerNewCardbitmapImage;
+                        }
+
+                        else if (ImgDealerFifthCard.Source == null)
+                        {
+                            ImgDealerFifthCard.Source = dealerNewCardbitmapImage;
+                        }
+
+                        else
+                        {
+                            ImgDealerFirstCard.Source = dealerNewCardbitmapImage;
+                        }
+
+
+
 
                         //if dealer number = too 21 and equal too player number it's a draw
                         if (dealerSum == 21 && dealerSum == playerSum)
@@ -878,15 +1088,105 @@ namespace BlackJack
             }
         }
 
-        //public void ReadFile()
-        //{
-        //    string text = File.ReadAllText(@"H:\Year Two\Semester 4\Programming\Project\Project\PlayerRecords.txt");
-        //    text = text.Replace(string.Format("Player Name: {0,-15} Wins: {1,-15} Losses: {2,-15} Draws: {3}", "Pierce", 1, 0, 0), "new value");
-        //    File.WriteAllText("test.txt", text);
-        //}
+        private void InsertPlayer()
+        {
+            //if its a new player set all values too default
+            int winint = 0;
+            int drawint = 0;
+            int loseint = 0;
+            //dependning on if they won draw or lost add 1 too the int thats right
+            if (win == true)
+            {
+                winint++;
+            }
+            else if (draw == true)
+            {
+                drawint++;
+            }
+            else if (lose == true)
+            {
+                loseint++;
+            }
+            else
+            {
+                return;
+            }
+            //connect too the database and insert the new player with the values given
+            string connection = @"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=MyPlayerData;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+            SqlConnection sqlConnection = new SqlConnection(connection);
+            string query = "INSERT INTO Players " +
+                            "(PlayerName, Wins, Losses, Draws, DateOfLastGame) " +
+                            "VALUES ( @PlayerName, @Wins, @Losses, @Draws, @DateOfLastGame) ";
+            SqlCommand cmd = new SqlCommand(query, sqlConnection);
+            cmd.Parameters.Add("@PlayerName", SqlDbType.NVarChar, 100).Value = txtBlCurrentPlayer.Text;
+            cmd.Parameters.Add("@Wins", SqlDbType.Int).Value = winint;
+            cmd.Parameters.Add("@Losses", SqlDbType.Int).Value = loseint;
+            cmd.Parameters.Add("@Draws", SqlDbType.Int).Value = drawint;
+            cmd.Parameters.Add("@DateOfLastGame", SqlDbType.NVarChar).Value = DateTime.Now.ToShortDateString();
+            
+            sqlConnection.Open();
+            cmd.ExecuteNonQuery();
+            sqlConnection.Close();
+
+
+        }
+
+        private void UpdatePlayer(int y)
+        {
+            //if the player is already in database find the player from the database
+            var query2 = from p in db.players
+                        where p.PlayerName == txtBxEnterName.Text
+                        select new
+                        {
+                            PlayerName = p.PlayerName,
+                            Wins = p.Wins,
+                            Losses = p.Losses,
+                            Draws = p.Draws,
+                            LastTimePlayed = p.DateOfLastGame
+                        };
+
+            var x = query2.AsQueryable().FirstOrDefault(name => name.PlayerName == txtBxEnterName.Text);
+
+            //have there results equal the results of the returning player
+            //and depending on if they won lost or drawn add there new results too the database
+            int lossesInt = x.Losses;
+            int winsInt = x.Wins;
+            int drawsInt = x.Draws;
+            if (win == true)
+            {
+                winsInt = y;
+            }
+            else if (draw == true)
+            {
+                drawsInt = y;
+            }
+            else
+            {
+                lossesInt = y;
+            }
+            string currentPlayerName = txtBxEnterName.Text;
+            //connect too database and update where player namae is equal too the currentplayer.text
+            string connection = @"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=MyPlayerData;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+            SqlConnection sqlConnection = new SqlConnection(connection);
+            string query = "UPDATE Players " +
+                "SET Wins = @Wins, Draws = @Draws, Losses = @Losses, DateOfLastGame = @DateOfLastGame WHERE PlayerName =@PlayerName";
+                
+                            
+            SqlCommand cmd = new SqlCommand(query, sqlConnection);
+            cmd.Parameters.Add("@PlayerName", SqlDbType.NVarChar, 100).Value = txtBlCurrentPlayer.Text;
+            cmd.Parameters.Add("@Wins", SqlDbType.Int).Value = winsInt;
+            cmd.Parameters.Add("@Losses", SqlDbType.Int).Value = lossesInt;
+            cmd.Parameters.Add("@Draws", SqlDbType.Int).Value = drawsInt;
+            cmd.Parameters.Add("@DateOfLastGame", SqlDbType.NVarChar).Value = DateTime.Now.ToShortDateString();
+
+            sqlConnection.Open();
+            cmd.ExecuteNonQuery();
+            sqlConnection.Close();
+        }
 
         private void btnSearchForRecord_Click(object sender, RoutedEventArgs e)
         {
+            //open new window for search records and close the current window open
             MainWindow window2 = new MainWindow();
             SearchRecordsWindow window = new SearchRecordsWindow();
 
@@ -896,6 +1196,30 @@ namespace BlackJack
             window2.Close();
         }
 
-        
+        public void SaveFile()
+        {
+            //save players data too json format
+            string data = JsonConvert.SerializeObject(GetPlayers(), Formatting.Indented);
+
+            //write the players data json into a json file
+            using(StreamWriter sw = new StreamWriter("C:/Users/Pierce/OneDrive/College/Semester 4/Programming/Project/Project/PlayerRecords.json"))
+            {
+                sw.Write(data);
+                sw.Close();
+            }
+        }
+
+        public static List<Player> GetPlayers()
+        {
+            //get player daya and put the list of player data into a players list too return
+            PlayerData db = new PlayerData();
+
+            List<Player> players = new List<Player>();
+            players = db.players.ToList();
+
+            return players;
+        }
+
+
     }
 }

@@ -8,14 +8,23 @@ namespace BlackJack
 {
     public class Deck
     {
+        #region Properties
         public List<Card> cards;
 
+        #endregion Properties
+
+        #region Constructors
         public Deck()
         {
+            //create a list of cards and shuffle them
             cards = new List<Card>();
             ShuffleNewDeck();
         }
 
+
+        #endregion Constructors
+
+        #region Methods
         public void ShuffleNewDeck()
         {
             //clear the list of cards
@@ -52,9 +61,10 @@ namespace BlackJack
             Card drawn = cards[cards.Count - 1];
             //takes away the card that was drawn form the list of cards
             cards.Remove(drawn);
-            //adds the card too your current hand
-            //hand.cards.Add(drawn);
+            
             return drawn;
         }
+        #endregion Methods
+
     }
 }

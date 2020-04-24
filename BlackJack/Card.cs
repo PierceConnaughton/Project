@@ -3,7 +3,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
+
 using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
+
 
 
 
@@ -35,12 +48,17 @@ namespace BlackJack
     }
     public class Card
     {
-        Image image;
+        #region Properties
+
+        Bitmap image;
         CardNumber cardNumber;
         CardSuit cardSuit;
 
         Random rnd = new Random();
 
+        
+
+        
         public CardNumber cardNumberVar {
             get
             {
@@ -67,14 +85,16 @@ namespace BlackJack
         }
             
 
-       Image cardImage {
+       Bitmap cardImage {
             get
             {
                 return this.image;
             }
         }
 
-        
+        #endregion Properies
+
+        #region Constructors
         public Card()
         {
             cardNumber = 0;
@@ -88,8 +108,12 @@ namespace BlackJack
             cardNumber = cardnumber;
         }
 
+        #endregion Constructors
+
+        #region Methods
         public override string ToString()
         {
+            //return the card num and card suit
             return string.Format("{0} of {1}",cardNumberVar.ToString(),cardSuitVar.ToString());
         }
 
@@ -97,8 +121,11 @@ namespace BlackJack
         {
             if (this.cardSuit != 0 && this.cardNumber != 0)//so it must be a valid card (see the Enums)
             {
-                int x = 0;//starting point from the left
-                int y = 0;//starting point from the top. Can be 0, 98, 196 and 294
+                //starting point from the left
+                int x = 0;
+                //starting point from the top. Can be 0, 98, 196 and 294
+                int y = 0;
+
                 int height = 97;
                 int width = 73;
 
@@ -118,21 +145,39 @@ namespace BlackJack
                         break;
                 }
 
-                x = width * ((int)this.cardNumber - 1);//the Ace has the value of 1 (see the Enum), so the X coordinate will be the starting (first one), that's why we have to subtract 1. The card 6 has the total width of the first 6 cards (6*73=438) minus the total width of the first 5 cards (5*73=365). Of course it is 73. The starting X coordinate is at the end of the 5th card (or the start of the left side of the 6th card). Hope you understand. :)
+                x = width * ((int)this.cardNumber - 1);
 
 
-                Bitmap source = new Bitmap(@"C:\Users\S00185812\OneDrive\College\Semester 4\Programming\Project\Project\BlackJack\Images\cards.png");//the original cards.png image
+                //gets the big image of cards
+                Bitmap source = new Bitmap(@"D:\College\Programming\ImageConversion-master\WpfApp1\cards.png");
+                //sets the width and height of the card
                 Bitmap img = new Bitmap(width, height);//this will be the created one for each card
+                //Create graphics from the current card that can be used too edit
                 Graphics g = Graphics.FromImage(img);
-                g.DrawImage(source, new Rectangle(0, 0, width, height), new Rectangle(x, y, width, height), GraphicsUnit.Pixel);//here we slice the original into pieces
+                //from the big card cut out the card you want from the selected height and width from all cards have and from the x axis and y axis we set earlier too find the card we want
+                //and we use pixels as our measure of units
+                g.DrawImage(source, new System.Drawing.Rectangle(0, 0, width, height), new System.Drawing.Rectangle(x, y, width, height), GraphicsUnit.Pixel);
+                //gets rid of the resources we used
                 g.Dispose();
+                //set the image we created as the image for this card
                 this.image = img;
+
+
+
+
+
+
+
             }
         }
 
-        public Image DisplayImage()
+        public Bitmap ReturnImage()
         {
-            return cardImage;
+            return image;
         }
+
+        
+        #endregion Methods
+
     }
 }

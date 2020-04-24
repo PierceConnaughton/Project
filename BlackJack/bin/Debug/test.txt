@@ -1,0 +1,6 @@
+Player Name: Pierce          Wins: 0               Losses: 1               Draws: 0               Date Last time player played: 02/28/2020 9:19
+
+Player Name: John            Wins: 0               Losses: 1               Draws: 0               Date Last time player played: 02/28/2020 9:27
+
+Player Name: Pierce          Wins: 0               Losses: 1               Draws: 0               Date Last time player played: 02/28/2020 9:33
+Player Name: John            Wins: 1               Losses: 0               Draws: 0               Date Last time player played: 02/28/2020 9:33
